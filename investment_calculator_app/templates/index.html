@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Investment Calculator</h1>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post" action="/">
+            <div class="form-group">
+                <label for="initial_investment">Initial Investment (lump sum):</label>
+                <input type="number" id="initial_investment" name="initial_investment" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="periodic_contribution">Periodic Contribution:</label>
+                <input type="number" id="periodic_contribution" name="periodic_contribution" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="contribution_frequency">Contribution Frequency:</label>
+                <select id="contribution_frequency" name="contribution_frequency">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="compounding_frequency">Compounding Frequency:</label>
+                <select id="compounding_frequency" name="compounding_frequency">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="payment_timing">Payment Timing:</label>
+                <select id="payment_timing" name="payment_timing">
+                    <option value="end">End of Period (Ordinary)</option>
+                    <option value="beginning">Beginning of Period (Due)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="contribution_growth_rate">Contribution Growth Rate (% per year):</label>
+                <input type="number" id="contribution_growth_rate" name="contribution_growth_rate" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="annual_interest_rate">Annual Interest Rate (%):</label>
+                <input type="number" id="annual_interest_rate" name="annual_interest_rate" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="years">Investment Horizon (years):</label>
+                <input type="number" id="years" name="years" min="1" step="1" required>
+            </div>
+            <div class="form-group">
+                <label for="inflation_rate">Annual Inflation Rate (%):</label>
+                <input type="number" id="inflation_rate" name="inflation_rate" step="0.01" min="0" value="0">
+            </div>
+            <button type="submit" class="btn">Calculate</button>
+        </form>
+      </div>
+</body>
+</html>

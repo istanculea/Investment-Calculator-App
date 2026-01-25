@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Investment Results</h1>
+        <div class="summary">
+            <h2>Summary</h2>
+            <ul>
+                <li><strong>Initial Investment:</strong> {{ initial_investment | round(2) }}</li>
+                <li><strong>Periodic Contribution:</strong> {{ periodic_contribution | round(2) }}</li>
+                <li><strong>Contribution Frequency:</strong> {{ contribution_frequency.title() }}</li>
+                <li><strong>Compounding Frequency:</strong> {{ compounding_frequency.title() }}</li>
+                <li><strong>Annual Interest Rate:</strong> {{ annual_interest_rate | round(2) }}%</li>
+                <li><strong>Investment Horizon:</strong> {{ years }} years</li>
+                <li><strong>Inflation Rate:</strong> {{ inflation_rate | round(2) }}%</li>
+                <li><strong>Payment Timing:</strong> {{ 'Beginning of Period (Due)' if payment_timing == 'beginning' else 'End of Period (Ordinary)' }}</li>
+                <li><strong>Contribution Growth Rate:</strong> {{ contribution_growth_rate | round(2) }}%</li>
+            </ul>
+        </div>
+        <div class="results">
+            <h2>Calculated Values</h2>
+            <p><strong>Future Value:</strong> {{ future_value | round(2) }}</p>
+            <p><strong>Real Value (inflation‑adjusted):</strong> {{ real_value | round(2) }}</p>
+            <p><strong>Total Contributions:</strong> {{ total_contributions | round(2) }}</p>
+            <p><strong>Total Interest Earned:</strong> {{ total_interest | round(2) }}</p>
+        </div>
+        <div class="chart">
+            <h2>Investment Growth Over Time</h2>
+            <img src="data:image/png;base64,{{ img_data }}" alt="Growth Chart" />
+        </div>
+        <div class="schedule">
+            <h2>Year‑by‑Year Schedule</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Balance</th>
+                        <th>Total Contributions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in schedule %}
+                    <tr>
+                        <td>{{ entry.year }}</td>
+                        <td>{{ entry.balance | round(2) }}</td>
+                        <td>{{ entry.total_contributions | round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="/" class="btn">Start Over</a>
+    </div>
+</body>
+</html>
