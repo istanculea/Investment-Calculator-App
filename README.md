@@ -1,102 +1,174 @@
 # Investment Calculator Web Application
 
-This repository contains a Flask‑based web application that acts as an interactive investment calculator.  The app lets you project the future value of a portfolio that begins with a **lump‑sum investment** and grows through regular contributions.  It also helps you understand the impact of different compounding intervals, contribution schedules, and inflation on your returns.  A detailed schedule and chart give you a year‑by‑year view of how your balance evolves.
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Flask](https://img.shields.io/badge/Flask-Web_Framework-lightgrey)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![Tests](https://img.shields.io/badge/Tests-pytest-success)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active_Development-orange)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-black)
+![Code Style](https://img.shields.io/badge/Code%20Style-PEP8-brightgreen)
 
-## Motivation
+---
 
-When you invest money you often combine a single starting deposit with recurring contributions.  The time value of money means that both the size and timing of those payments matter.  Financial references show that the future value of a constant stream of payments (an *ordinary annuity*) growing at a periodic rate `i` can be calculated as:
+## Overview
 
-\[\text{FV}_{\text{annuity}} = \frac{R\left((1 + i)^n - 1\right)}{i}\]\
+A Flask-based web application that acts as an interactive investment calculator.  
+It projects portfolio growth from a lump sum plus recurring contributions while accounting for:
 
-where:
+- Compounding frequency
+- Contribution timing
+- Contribution growth
+- Inflation
 
-* `R` is the payment each period.
-* `i` is the interest rate per period.
-* `n` is the number of payments.
+The application provides year-by-year schedules and visual charts.
 
-If you also start with an initial lump sum `PV`, the total future value after `n` periods is given by the sum of the compound growth of the lump sum and the annuity factor:
+---
 
-\[\text{FV} = PV\,(1 + i)^n + \frac{R\left((1 + i)^n - 1\right)}{i}\]\
+## DevOps Portfolio Project
 
-This formula assumes contributions are made at the end of each period (an **ordinary annuity**).  If payments are made at the beginning of each period (an **annuity due**) the second term is multiplied by an additional factor of `(1 + i)`.  Our application supports both payment timings.  For scenarios where contributions grow each year at a constant rate `g`, the formula adapts to:
+This project demonstrates practical DevOps and cloud-native skills across the full application lifecycle.
 
-\[\text{FV}_{\text{growing}} = \frac{R}{i - g}\Bigl((1 + i)^n - (1 + g)^n\Bigr)\times (1 + iT)\]\
+### Architecture Overview
 
-where `T` is `0` for ordinary annuities and `1` for annuities due.  These formulas come from time‑value‑of‑money derivations, and the app falls back to simulation when growth rates or payment timings make a closed‑form solution less stable.
+User → Flask Web App → Financial Engine  
+                 ↓  
+            Matplotlib Charts  
+                 ↓  
+            Docker Container
 
-Inflation reduces the **purchasing power** of your investments.  To compare today’s dollars with future dollars, the real future value can be found by deflating the nominal future value using the inflation rate.  Finance tutorials explain this adjustment as:
+### Implemented DevOps Concepts
 
-\[\text{Real Future Value} = \frac{\text{Nominal Future Value}}{(1 + \text{Inflation Rate})^n}\]\.
+- Docker containerization  
+- Dependency isolation  
+- pytest automated testing  
+- Infrastructure-ready builds  
+- Local/container parity  
+- Modular business logic  
+- Observability-ready structure  
 
-Our calculator reports both the nominal future value and its inflation‑adjusted real value.
+This project intentionally includes real business logic (financial math), visualization, testing, and container security — not just “Hello World”.
+
+---
+
+## Financial Model
+
+The calculator uses standard **time-value-of-money** formulas.
+
+### Lump Sum Growth
+
+FV = PV(1+i)^n
+
+---
+
+### Ordinary Annuity (End-of-Period Contributions)
+
+FV = R((1+i)^n - 1) / i
+
+Combined:
+
+FV = PV(1+i)^n + R((1+i)^n - 1) / i
+
+---
+
+### Annuity Due (Beginning-of-Period)
+
+FV_due = FV_annuity × (1+i)
+
+---
+
+### Growing Contributions
+
+FV = R/(i-g) × [(1+i)^n - (1+g)^n] × (1+iT)
+
+Where:
+
+- R = contribution  
+- i = interest rate  
+- g = contribution growth  
+- n = periods  
+- T = 0 ordinary / 1 due  
+
+---
+
+### Inflation Adjustment
+
+FV_real = FV_nominal / (1+inflation)^n
+
+---
+
+### Numerical Stability
+
+When analytical formulas become unstable (for example i ≈ g or long horizons), the app switches to deterministic period-by-period simulation.
+
+This hybrid analytical + numerical approach mirrors production financial systems.
+
+---
 
 ## Features
 
-* **Flexible compounding and contribution frequencies** – choose monthly, quarterly or yearly compounding separately from the contribution schedule.
-* **Payment timing** – specify whether contributions happen at the *beginning* or *end* of each period (annuity due vs. ordinary annuity).
-* **Contribution growth rate** – model a constant annual increase in contributions to simulate salary raises or planned increases.
-* **Inflation adjustment** – enter an annual inflation rate to see your results in today’s dollars using the purchasing power formula.
-* **Detailed schedule** – view a year‑by‑year table showing cumulative contributions and portfolio balance.
-* **Interactive chart** – a line chart generated with Matplotlib illustrates how your balance grows over time.
-* **Responsive interface** – built with Flask and Bootstrap, the app runs locally in a browser on desktop or mobile.
+- Flexible compounding and contribution frequencies  
+- Beginning or end-of-period payments  
+- Growing contributions  
+- Inflation-adjusted real returns  
+- Year-by-year schedule  
+- Matplotlib growth charts  
+- Responsive Flask + Bootstrap UI  
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-* Python 3.10 or later.
-* [pip](https://pip.pypa.io/) for installing dependencies.
+- Python 3.10+  
+- pip  
 
-### Installing
+---
 
-1. **Clone the repository**:
-   ```
-   git clone https://github.com/your‑username/investment‑calculator‑app.git
-   cd investment‑calculator
-   ```
+### Installation
 
-2. **Create a virtual environment and install dependencies**:
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows use venv\Scripts\activate
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
+git clone https://github.com/your-username/investment-calculator-app.git  
+cd investment-calculator  
+python -m venv venv  
+source venv/bin/activate  
+pip install --upgrade pip  
+pip install -r requirements.txt  
 
-### Running the Application
+---
 
-After installing the dependencies, start the Flask development server with:
+## Run Locally
 
-```
-python app.py
-```
+python app.py  
 
-By default the app will listen on `http://localhost:5000`.  Open this URL in your browser and enter your investment parameters.  Submitting the form will display the projected balances, chart and schedule.
+Open:
 
-### Containerized Deployment
+http://localhost:5000
 
-A `Dockerfile` is included for easy deployment in containerized environments.  To build and run the container locally:
+---
 
-```
-docker build -t your‑username/investment‑calculator-app .
-docker run -p 5000:5000 your‑username/investment‑calculator-app
-```
+## Docker Deployment
 
-Visit `http://localhost:5000` to use the calculator.  See the commentary in the Dockerfile for details on the base image and dependency installation.
+docker build -t your-username/investment-calculator-app .  
+docker run -p 5000:5000 your-username/investment-calculator-app  
+
+Navigate to:
+
+http://localhost:5000
+
+---
 
 ## Testing
 
-The project includes automated tests using [pytest](https://pytest.org/).  Unit tests validate the core calculation functions against known formulas, and integration tests exercise the Flask routes using the test client.
+Uses pytest for unit and integration testing.
 
-To run the tests, install the additional testing dependency (`pytest`) and execute:
+pip install pytest  
+pytest  
 
-```
-pip install pytest
-pytest
-```
-
-You should see output indicating that all tests pass.  Writing tests helps ensure that future changes do not break the financial logic or web interface.
+---
 
 ## License
 
-This project is licensed under the MIT License.  See the `LICENSE` file for details.
+MIT License — see LICENSE file.
+
+---
