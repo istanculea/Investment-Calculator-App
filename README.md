@@ -1,174 +1,190 @@
-# Investment Calculator Web Application
-
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![Flask](https://img.shields.io/badge/Flask-Web_Framework-lightgrey)
-![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
-![Tests](https://img.shields.io/badge/Tests-pytest-success)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Status-Active_Development-orange)
-![CI](https://img.shields.io/badge/CI-GitHub_Actions-black)
-![Code Style](https://img.shields.io/badge/Code%20Style-PEP8-brightgreen)
+# Investment Calculator — DevOps Portfolio Project
+![Python](https://img.shields.io/badge/Python-3.10+-blue)![Flask](https://img.shields.io/badge/Flask-Web_Framework-lightgrey)![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-success)![Registry](https://img.shields.io/badge/Image-Docker_Hub-blue)![Tests](https://img.shields.io/badge/Tests-pytest-success)
 
 ---
 
-## Overview
+## Project Objective
 
-A Flask-based web application that acts as an interactive investment calculator.  
-It projects portfolio growth from a lump sum plus recurring contributions while accounting for:
+This repository contains a production-style Flask application used as a **DevOps portfolio project**.
 
-- Compounding frequency
-- Contribution timing
-- Contribution growth
-- Inflation
+The goal is to demonstrate real-world engineering practices across:
 
-The application provides year-by-year schedules and visual charts.
+* Application development
+* CI/CD automation
+* Container publishing
+* Cloud-native readiness
 
----
-
-## DevOps Portfolio Project
-
-This project demonstrates practical DevOps and cloud-native skills across the full application lifecycle.
-
-### Architecture Overview
-
-User → Flask Web App → Financial Engine  
-                 ↓  
-            Matplotlib Charts  
-                 ↓  
-            Docker Container
-
-### Implemented DevOps Concepts
-
-- Docker containerization  
-- Dependency isolation  
-- pytest automated testing  
-- Infrastructure-ready builds  
-- Local/container parity  
-- Modular business logic  
-- Observability-ready structure  
-
-This project intentionally includes real business logic (financial math), visualization, testing, and container security — not just “Hello World”.
+The financial calculator exists to provide non-trivial business logic rather than a toy example.
 
 ---
 
-## Financial Model
+## Current Architecture
 
-The calculator uses standard **time-value-of-money** formulas.
+```
+Browser
+   |
+   v
+Flask Web App
+   |
+   v
+Investment Engine + Schedule Simulation
+   |
+   v
+Matplotlib Chart Renderer
+   |
+Docker Container
+   |
+Docker Hub Registry
+```
 
-### Lump Sum Growth
-
-FV = PV(1+i)^n
-
----
-
-### Ordinary Annuity (End-of-Period Contributions)
-
-FV = R((1+i)^n - 1) / i
-
-Combined:
-
-FV = PV(1+i)^n + R((1+i)^n - 1) / i
-
----
-
-### Annuity Due (Beginning-of-Period)
-
-FV_due = FV_annuity × (1+i)
+Images are automatically built and published via GitHub Actions.
 
 ---
 
-### Growing Contributions
+## Implemented DevOps Capabilities
 
-FV = R/(i-g) × [(1+i)^n - (1+g)^n] × (1+iT)
+### CI/CD
 
-Where:
+* GitHub Actions pipeline:
 
-- R = contribution  
-- i = interest rate  
-- g = contribution growth  
-- n = periods  
-- T = 0 ordinary / 1 due  
+  * Runs pytest
+  * Builds Docker image
+  * Pushes image to Docker Hub
 
 ---
 
-### Inflation Adjustment
+### Containerization
 
-FV_real = FV_nominal / (1+inflation)^n
-
----
-
-### Numerical Stability
-
-When analytical formulas become unstable (for example i ≈ g or long horizons), the app switches to deterministic period-by-period simulation.
-
-This hybrid analytical + numerical approach mirrors production financial systems.
+* Multi-stage Docker build
+* Dependency isolation
+* Stateless container
+* Port 5000 exposed for orchestration platforms
 
 ---
 
-## Features
+### Quality Gates
 
-- Flexible compounding and contribution frequencies  
-- Beginning or end-of-period payments  
-- Growing contributions  
-- Inflation-adjusted real returns  
-- Year-by-year schedule  
-- Matplotlib growth charts  
-- Responsive Flask + Bootstrap UI  
+* Unit tests for calculation engine
+* Flask route integration tests
+* Pipeline blocks on test failure
 
 ---
 
-## Getting Started
+### Engineering Practices
 
-### Prerequisites
-
-- Python 3.10+  
-- pip  
+* Separation of UI, logic, and plotting
+* Deterministic financial simulation
+* Production-ready Flask layout
+* Infrastructure-friendly container design
 
 ---
 
-### Installation
+## Application Features
 
-git clone https://github.com/your-username/investment-calculator-app.git  
-cd investment-calculator  
-python -m venv venv  
-source venv/bin/activate  
-pip install --upgrade pip  
-pip install -r requirements.txt  
+* Lump sum + recurring investments
+* Flexible compounding vs contribution frequency
+* Beginning or end-of-period payments
+* Growing contributions
+* Inflation adjustment
+* Year-by-year schedule
+* Portfolio growth chart
+
+---
+
+## Technology Stack
+
+* Python 3.10
+* Flask
+* Matplotlib
+* pytest
+* Docker
+* GitHub Actions
+* Docker Hub
+
+---
+
+## Local Development
+
+```bash
+git clone https://github.com/your-username/investment-calculator-app.git
+cd investment-calculator-app
+
+python -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
 
 ---
 
 ## Run Locally
 
-python app.py  
-
-Open:
-
-http://localhost:5000
+```bash
+python app.py
+```
 
 ---
 
-## Docker Deployment
+## Run from Docker Hub
 
-docker build -t your-username/investment-calculator-app .  
-docker run -p 5000:5000 your-username/investment-calculator-app  
-
-Navigate to:
-
-http://localhost:5000
+```bash
+docker pull your-dockerhub-username/investment-calculator
+docker run -p 5000:5000 your-dockerhub-username/investment-calculator
+```
 
 ---
 
 ## Testing
 
-Uses pytest for unit and integration testing.
+```bash
+pytest
+```
 
-pip install pytest  
-pytest  
+---
+
+## Roadmap (In Progress)
+
+### Kubernetes Deployment (Helm)
+
+* Helm chart for application deployment
+* Configurable values.yaml
+* Service + Ingress
+* Horizontal Pod Autoscaler
+
+---
+
+### Observability
+
+* Prometheus scraping
+* Grafana dashboards:
+
+  * Request latency
+  * Error rate
+  * Pod CPU / memory
+  * Application throughput
+
+---
+
+### Future Enhancements
+
+* ArgoCD GitOps deployment
+* Trivy image scanning
+* SLO-based alerting
+
+---
+
+
+## This project demonstrates:
+
+✅ Real application logic
+✅ CI/CD automation
+✅ Container publishing
+✅ Cloud-native design
+✅ Kubernetes readiness
 
 ---
 
 ## License
 
-MIT License — see LICENSE file.
-
----
+MIT
