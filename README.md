@@ -46,11 +46,22 @@ Images are automatically built and published via GitHub Actions.
 
 ### CI/CD
 
-* GitHub Actions pipeline:
+* **GitHub Actions pipeline:**
+  * Automated testing on Python 3.10, 3.11, and 3.12
+  * Code quality checks with flake8
+  * Test coverage reporting with codecov
+  * Docker image building and pushing to Docker Hub
+  * Security scanning with Trivy
+  * Runs on push to main/develop branches and PRs
 
-  * Runs pytest
-  * Builds Docker image
-  * Pushes image to Docker Hub
+### Quality Gates
+
+* Unit tests for calculation engine
+* Flask route integration tests  
+* Input validation tests
+* Error handling tests
+* Pipeline blocks on test failure
+* Security vulnerability scanning
 
 ---
 
@@ -60,14 +71,20 @@ Images are automatically built and published via GitHub Actions.
 * Dependency isolation
 * Stateless container
 * Port 5000 exposed for orchestration platforms
+* **Non-root user for security**
+* **Health checks for monitoring**
+* **Optimized layer caching**
 
 ---
 
-### Quality Gates
+### Security
 
-* Unit tests for calculation engine
-* Flask route integration tests
-* Pipeline blocks on test failure
+* **Security headers** (CSP, X-Frame-Options, etc.)
+* **Input validation and sanitization**
+* **Non-root Docker user**
+* **Pinned dependency versions**
+* **Environment-based configuration**
+* **Automated vulnerability scanning**
 
 ---
 
@@ -77,6 +94,10 @@ Images are automatically built and published via GitHub Actions.
 * Deterministic financial simulation
 * Production-ready Flask layout
 * Infrastructure-friendly container design
+* **Comprehensive error handling and logging**
+* **Input validation**
+* **Type hints and documentation**
+* **Health check endpoints**
 
 ---
 
@@ -94,34 +115,72 @@ Images are automatically built and published via GitHub Actions.
 
 ## Technology Stack
 
-* Python 3.10
-* Flask
-* Matplotlib
-* pytest
-* Docker
-* GitHub Actions
-* Docker Hub
+* **Python 3.10+** (tested on 3.10, 3.11, 3.12)
+* **Flask** - Web framework
+* **Matplotlib** - Chart generation
+* **pytest** - Testing framework
+* **Docker** - Containerization
+* **GitHub Actions** - CI/CD
+* **Docker Hub** - Container registry
+* **Trivy** - Security scanning
+* **flake8** - Code linting
+* **black** - Code formatting
 
 ---
 
 ## Local Development
 
+### Prerequisites
+- Python 3.10 or higher
+- pip
+
+### Setup
+
 ```bash
-git clone https://github.com/your-username/investment-calculator-app.git
-cd investment-calculator-app
+git clone https://github.com/istanculea/Investment-Calculator-App.git
+cd Investment-Calculator-App/investment_calculator_app
 
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
+pip install -r requirements-dev.txt  # For development dependencies
+```
+
+### Environment Configuration
+
+Copy the example environment file and configure as needed:
+
+```bash
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
 ---
 
 ## Run Locally
 
+### Using Python directly
+
 ```bash
+cd investment_calculator_app
 python app.py
+```
+
+Visit http://localhost:5000 in your browser.
+
+### Using Docker Compose (Recommended)
+
+```bash
+docker-compose up
+```
+
+### Using Docker
+
+```bash
+cd investment_calculator_app
+docker build -t investment-calculator .
+docker run -p 5000:5000 investment-calculator
 ```
 
 ---
@@ -137,8 +196,23 @@ docker run -p 5000:5000 your-dockerhub-username/investment-calculator
 
 ## Testing
 
+Run the test suite:
+
 ```bash
-pytest
+cd investment_calculator_app
+pytest tests/ -v
+```
+
+Run with coverage:
+
+```bash
+pytest tests/ --cov=. --cov-report=html
+```
+
+Run linting:
+
+```bash
+flake8 .
 ```
 
 ---
@@ -177,11 +251,21 @@ pytest
 
 ## This project demonstrates:
 
-✅ Real application logic
-✅ CI/CD automation
-✅ Container publishing
-✅ Cloud-native design
-✅ Kubernetes readiness
+✅ Real application logic  
+✅ CI/CD automation with comprehensive pipeline  
+✅ Container publishing with security best practices  
+✅ Cloud-native design with health checks  
+✅ Kubernetes readiness  
+✅ **Security-first approach**  
+✅ **Production-ready error handling**  
+✅ **Comprehensive testing (7 tests)**  
+✅ **Code quality standards**
+
+---
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
 
 ---
 
