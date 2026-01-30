@@ -38,6 +38,8 @@ from __future__ import annotations
 
 import base64
 import io
+import logging
+import os
 from typing import List, Dict
 
 from flask import Flask, render_template, request
@@ -47,7 +49,29 @@ matplotlib.use('Agg')  # Use non‑interactive backend for server environments
 import matplotlib.pyplot as plt
 
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
+
+# Security headers
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    return response
+
+# Secret key for session management (should be set via environment variable in production)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max request size
 
 
 def calculate_future_value(
@@ -251,8 +275,23 @@ def index() -> str:
             inflation_rate = float(request.form.get('inflation_rate', 0)) / 100.0
             payment_timing = request.form.get('payment_timing', 'end')
             contribution_growth_rate = float(request.form.get('contribution_growth_rate', 0)) / 100.0
-        except (TypeError, ValueError):
+            
+            # Input validation
+            if initial_investment < 0 or periodic_contribution < 0:
+                logger.warning("Negative investment values received")
+                return render_template('index.html', error="Investment amounts cannot be negative.")
+            
+            if years <= 0 or years > 100:
+                logger.warning(f"Invalid years value: {years}")
+                return render_template('index.html', error="Years must be between 1 and 100.")
+            
+            if annual_interest_rate < -1 or annual_interest_rate > 1:
+                logger.warning(f"Invalid interest rate: {annual_interest_rate}")
+                return render_template('index.html', error="Interest rate must be between -100% and 100%.")
+                
+        except (TypeError, ValueError) as e:
             # If conversion fails, re‑render the index page with an error message
+            logger.error(f"Invalid input: {e}")
             return render_template('index.html', error="Invalid input. Please enter numeric values.")
 
         # Map frequency string to periods per year
@@ -291,17 +330,23 @@ def index() -> str:
         total_interest = future_value - total_contributions
 
         # Create a plot of the investment growth
-        plt.figure(figsize=(8, 4))
-        plt.plot(years_list, balances_list, marker='o', linestyle='-', color='#007bff')
-        plt.title('Investment Growth Over Time')
-        plt.xlabel('Year')
-        plt.ylabel('Portfolio Value')
-        plt.grid(True)
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight')
-        buf.seek(0)
-        image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close()
+        try:
+            plt.figure(figsize=(8, 4))
+            plt.plot(years_list, balances_list, marker='o', linestyle='-', color='#007bff')
+            plt.title('Investment Growth Over Time')
+            plt.xlabel('Year')
+            plt.ylabel('Portfolio Value')
+            plt.grid(True)
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', bbox_inches='tight')
+            buf.seek(0)
+            image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+            plt.close()
+        except Exception as e:
+            logger.error(f"Error generating plot: {e}")
+            image_base64 = ""
+
+        logger.info(f"Calculation completed: FV={future_value:.2f}, Years={years}")
 
         return render_template(
             'results.html',
@@ -324,6 +369,12 @@ def index() -> str:
 
     # Default GET request simply renders the form
     return render_template('index.html')
+
+
+@app.route('/health')
+def health():
+    """Health check endpoint for monitoring and orchestration."""
+    return {'status': 'healthy', 'version': '1.0.0'}, 200
 
 
 if __name__ == '__main__':
