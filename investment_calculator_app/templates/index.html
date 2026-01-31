@@ -1,67 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Calculator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Investment Calculator</h1>
-        {% if error %}
-        <p class="error">{{ error }}</p>
-        {% endif %}
-        <form method="post" action="/">
-            <div class="form-group">
-                <label for="initial_investment">Initial Investment (lump sum):</label>
-                <input type="number" id="initial_investment" name="initial_investment" step="0.01" min="0" required>
+{% extends "base.html" %}
+
+{% block title %}Investment Calculator - Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <h1><i class="fas fa-calculator"></i> Investment Calculator</h1>
+        <p class="subtitle">Calculate your investment returns with precision and see your wealth grow over time</p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-coins"></i> Investment Details</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/" id="investmentForm" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="initial_investment">
+                            <i class="fas fa-piggy-bank"></i> Initial Investment (lump sum):
+                            <span class="tooltip-icon" data-tooltip="The starting amount you invest">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-dollar-sign"></i></span>
+                            <input type="number" id="initial_investment" name="initial_investment" step="0.01" min="0" required>
+                        </div>
+                        <span class="error-message" id="error-initial_investment"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="periodic_contribution">
+                            <i class="fas fa-hand-holding-usd"></i> Periodic Contribution:
+                            <span class="tooltip-icon" data-tooltip="Regular amount to invest each period">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-dollar-sign"></i></span>
+                            <input type="number" id="periodic_contribution" name="periodic_contribution" step="0.01" min="0" value="0">
+                        </div>
+                        <span class="error-message" id="error-periodic_contribution"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contribution_frequency">
+                            <i class="fas fa-calendar-alt"></i> Contribution Frequency:
+                        </label>
+                        <select id="contribution_frequency" name="contribution_frequency">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="compounding_frequency">
+                            <i class="fas fa-sync-alt"></i> Compounding Frequency:
+                        </label>
+                        <select id="compounding_frequency" name="compounding_frequency">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payment_timing">
+                            <i class="fas fa-clock"></i> Payment Timing:
+                        </label>
+                        <select id="payment_timing" name="payment_timing">
+                            <option value="end">End of Period (Ordinary)</option>
+                            <option value="beginning">Beginning of Period (Due)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contribution_growth_rate">
+                            <i class="fas fa-chart-line"></i> Contribution Growth Rate (% per year):
+                            <span class="tooltip-icon" data-tooltip="Annual increase in your contributions">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-percent"></i></span>
+                            <input type="number" id="contribution_growth_rate" name="contribution_growth_rate" step="0.01" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="annual_interest_rate">
+                            <i class="fas fa-percentage"></i> Annual Interest Rate (%):
+                            <span class="tooltip-icon" data-tooltip="Expected annual return on your investment">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-percent"></i></span>
+                            <input type="number" id="annual_interest_rate" name="annual_interest_rate" step="0.01" min="0" required>
+                        </div>
+                        <span class="error-message" id="error-annual_interest_rate"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="years">
+                            <i class="fas fa-hourglass-half"></i> Investment Horizon (years):
+                            <span class="tooltip-icon" data-tooltip="How long you plan to invest">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-calendar"></i></span>
+                            <input type="number" id="years" name="years" min="1" max="100" step="1" required>
+                        </div>
+                        <span class="error-message" id="error-years"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inflation_rate">
+                            <i class="fas fa-fire"></i> Annual Inflation Rate (%):
+                            <span class="tooltip-icon" data-tooltip="Expected annual inflation to calculate real returns">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-icon"><i class="fas fa-percent"></i></span>
+                            <input type="number" id="inflation_rate" name="inflation_rate" step="0.01" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculate Investment
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reset Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features" class="features-section">
+        <h2><i class="fas fa-star"></i> Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h3>Compound Interest</h3>
+                <p>Calculate returns with flexible compounding frequencies</p>
             </div>
-            <div class="form-group">
-                <label for="periodic_contribution">Periodic Contribution:</label>
-                <input type="number" id="periodic_contribution" name="periodic_contribution" step="0.01" min="0" value="0">
+            <div class="feature-card">
+                <i class="fas fa-calendar-check feature-icon"></i>
+                <h3>Regular Contributions</h3>
+                <p>Plan periodic investments with growth rates</p>
             </div>
-            <div class="form-group">
-                <label for="contribution_frequency">Contribution Frequency:</label>
-                <select id="contribution_frequency" name="contribution_frequency">
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
+            <div class="feature-card">
+                <i class="fas fa-fire feature-icon"></i>
+                <h3>Inflation Adjusted</h3>
+                <p>See real returns accounting for inflation</p>
             </div>
-            <div class="form-group">
-                <label for="compounding_frequency">Compounding Frequency:</label>
-                <select id="compounding_frequency" name="compounding_frequency">
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
+            <div class="feature-card">
+                <i class="fas fa-table feature-icon"></i>
+                <h3>Year-by-Year Schedule</h3>
+                <p>Detailed breakdown of your investment growth</p>
             </div>
-            <div class="form-group">
-                <label for="payment_timing">Payment Timing:</label>
-                <select id="payment_timing" name="payment_timing">
-                    <option value="end">End of Period (Ordinary)</option>
-                    <option value="beginning">Beginning of Period (Due)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="contribution_growth_rate">Contribution Growth Rate (% per year):</label>
-                <input type="number" id="contribution_growth_rate" name="contribution_growth_rate" step="0.01" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label for="annual_interest_rate">Annual Interest Rate (%):</label>
-                <input type="number" id="annual_interest_rate" name="annual_interest_rate" step="0.01" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="years">Investment Horizon (years):</label>
-                <input type="number" id="years" name="years" min="1" step="1" required>
-            </div>
-            <div class="form-group">
-                <label for="inflation_rate">Annual Inflation Rate (%):</label>
-                <input type="number" id="inflation_rate" name="inflation_rate" step="0.01" min="0" value="0">
-            </div>
-            <button type="submit" class="btn">Calculate</button>
-        </form>
-      </div>
-</body>
-</html>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div id="about" class="about-section">
+        <h2><i class="fas fa-info-circle"></i> About This Calculator</h2>
+        <p>This investment calculator uses advanced financial formulas to provide accurate projections of your investment growth. Whether you're planning for retirement, saving for a major purchase, or building wealth, this tool helps you visualize your financial future.</p>
+    </div>
+</div>
+{% endblock %}
