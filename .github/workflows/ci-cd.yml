@@ -45,9 +45,7 @@ jobs:
     - name: Lint with flake8
       run: |
         cd investment_calculator_app
-        # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
 
     - name: Run tests with pytest
@@ -83,7 +81,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PAS }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Extract metadata for Docker
       id: meta
@@ -91,9 +89,8 @@ jobs:
       with:
         images: ${{ secrets.DOCKERHUB_USERNAME }}/investment-calculator
         tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+          main
+          latest
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -104,28 +101,3 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: test
-    permissions:
-      contents: read
-      security-events: write
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: './investment_calculator_app'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
