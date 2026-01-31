@@ -51,6 +51,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Print button functionality
+    const printButton = document.getElementById('printButton');
+    if (printButton) {
+        printButton.addEventListener('click', function() {
+            window.print();
+        });
+    }
+    
     // Add animation to cards on scroll
     const observerOptions = {
         threshold: 0.1,
@@ -91,16 +99,18 @@ function validateField(field) {
     // Validate numeric fields
     else if (field.type === 'number') {
         const value = parseFloat(field.value);
-        const min = parseFloat(field.getAttribute('min'));
-        const max = parseFloat(field.getAttribute('max'));
+        const minAttr = field.getAttribute('min');
+        const maxAttr = field.getAttribute('max');
+        const min = minAttr !== null ? parseFloat(minAttr) : null;
+        const max = maxAttr !== null ? parseFloat(maxAttr) : null;
         
         if (isNaN(value)) {
             isValid = false;
             errorMessage = 'Please enter a valid number';
-        } else if (min !== null && value < min) {
+        } else if (min !== null && !isNaN(min) && value < min) {
             isValid = false;
             errorMessage = `Value must be at least ${min}`;
-        } else if (max !== null && value > max) {
+        } else if (max !== null && !isNaN(max) && value > max) {
             isValid = false;
             errorMessage = `Value must be at most ${max}`;
         }
