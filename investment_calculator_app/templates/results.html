@@ -1,61 +1,183 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Investment Results</h1>
-        <div class="summary">
-            <h2>Summary</h2>
-            <ul>
-                <li><strong>Initial Investment:</strong> {{ initial_investment | round(2) }}</li>
-                <li><strong>Periodic Contribution:</strong> {{ periodic_contribution | round(2) }}</li>
-                <li><strong>Contribution Frequency:</strong> {{ contribution_frequency.title() }}</li>
-                <li><strong>Compounding Frequency:</strong> {{ compounding_frequency.title() }}</li>
-                <li><strong>Annual Interest Rate:</strong> {{ annual_interest_rate | round(2) }}%</li>
-                <li><strong>Investment Horizon:</strong> {{ years }} years</li>
-                <li><strong>Inflation Rate:</strong> {{ inflation_rate | round(2) }}%</li>
-                <li><strong>Payment Timing:</strong> {{ 'Beginning of Period (Due)' if payment_timing == 'beginning' else 'End of Period (Ordinary)' }}</li>
-                <li><strong>Contribution Growth Rate:</strong> {{ contribution_growth_rate | round(2) }}%</li>
-            </ul>
-        </div>
-        <div class="results">
-            <h2>Calculated Values</h2>
-            <p><strong>Future Value:</strong> {{ future_value | round(2) }}</p>
-            <p><strong>Real Value (inflation‑adjusted):</strong> {{ real_value | round(2) }}</p>
-            <p><strong>Total Contributions:</strong> {{ total_contributions | round(2) }}</p>
-            <p><strong>Total Interest Earned:</strong> {{ total_interest | round(2) }}</p>
-        </div>
-        <div class="chart">
-            <h2>Investment Growth Over Time</h2>
-            <img src="data:image/png;base64,{{ img_data }}" alt="Growth Chart" />
-        </div>
-        <div class="schedule">
-            <h2>Year‑by‑Year Schedule</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th>Balance</th>
-                        <th>Total Contributions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in schedule %}
-                    <tr>
-                        <td>{{ entry.year }}</td>
-                        <td>{{ entry.balance | round(2) }}</td>
-                        <td>{{ entry.total_contributions | round(2) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <a href="/" class="btn">Start Over</a>
+{% extends "base.html" %}
+
+{% block title %}Investment Results{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <h1><i class="fas fa-chart-line"></i> Investment Results</h1>
+        <p class="subtitle">Here's how your investment will grow over time</p>
     </div>
-</body>
-</html>
+
+    <!-- Summary Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-clipboard-list"></i> Investment Summary</h2>
+        </div>
+        <div class="card-body">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <i class="fas fa-piggy-bank summary-icon"></i>
+                    <div>
+                        <strong>Initial Investment:</strong>
+                        <span>${{ initial_investment | round(2) }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-hand-holding-usd summary-icon"></i>
+                    <div>
+                        <strong>Periodic Contribution:</strong>
+                        <span>${{ periodic_contribution | round(2) }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-calendar-alt summary-icon"></i>
+                    <div>
+                        <strong>Contribution Frequency:</strong>
+                        <span>{{ contribution_frequency.title() }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-sync-alt summary-icon"></i>
+                    <div>
+                        <strong>Compounding Frequency:</strong>
+                        <span>{{ compounding_frequency.title() }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-percentage summary-icon"></i>
+                    <div>
+                        <strong>Annual Interest Rate:</strong>
+                        <span>{{ annual_interest_rate | round(2) }}%</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-hourglass-half summary-icon"></i>
+                    <div>
+                        <strong>Investment Horizon:</strong>
+                        <span>{{ years }} years</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-fire summary-icon"></i>
+                    <div>
+                        <strong>Inflation Rate:</strong>
+                        <span>{{ inflation_rate | round(2) }}%</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-clock summary-icon"></i>
+                    <div>
+                        <strong>Payment Timing:</strong>
+                        <span>{{ 'Beginning of Period (Due)' if payment_timing == 'beginning' else 'End of Period (Ordinary)' }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-chart-line summary-icon"></i>
+                    <div>
+                        <strong>Contribution Growth Rate:</strong>
+                        <span>{{ contribution_growth_rate | round(2) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Cards -->
+    <div class="results-grid">
+        <div class="result-card result-primary">
+            <i class="fas fa-dollar-sign result-icon"></i>
+            <div class="result-content">
+                <h3>Future Value</h3>
+                <p class="result-value">${{ '{:,.2f}'.format(future_value) }}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card result-success">
+            <i class="fas fa-fire result-icon"></i>
+            <div class="result-content">
+                <h3>Real Value (Inflation-Adjusted)</h3>
+                <p class="result-value">${{ '{:,.2f}'.format(real_value) }}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (real_value / future_value * 100) | round }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card result-info">
+            <i class="fas fa-coins result-icon"></i>
+            <div class="result-content">
+                <h3>Total Contributions</h3>
+                <p class="result-value">${{ '{:,.2f}'.format(total_contributions) }}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (total_contributions / future_value * 100) | round }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card result-warning">
+            <i class="fas fa-chart-bar result-icon"></i>
+            <div class="result-content">
+                <h3>Total Interest Earned</h3>
+                <p class="result-value">${{ '{:,.2f}'.format(total_interest) }}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (total_interest / future_value * 100) | round }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-chart-area"></i> Investment Growth Over Time</h2>
+        </div>
+        <div class="card-body">
+            <div class="chart">
+                <img src="data:image/png;base64,{{ img_data }}" alt="Growth Chart" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-table"></i> Year-by-Year Schedule</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Year</th>
+                            <th><i class="fas fa-wallet"></i> Balance</th>
+                            <th><i class="fas fa-coins"></i> Total Contributions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in schedule %}
+                        <tr>
+                            <td>{{ entry.year }}</td>
+                            <td>${{ '{:,.2f}'.format(entry.balance) }}</td>
+                            <td>${{ '{:,.2f}'.format(entry.total_contributions) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/" class="btn btn-primary">
+            <i class="fas fa-calculator"></i> Calculate Again
+        </a>
+        <button id="printButton" class="btn btn-secondary">
+            <i class="fas fa-print"></i> Print Results
+        </button>
+    </div>
+</div>
+{% endblock %}
